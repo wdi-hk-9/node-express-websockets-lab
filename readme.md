@@ -1,13 +1,3 @@
----
-title: Build a Realtime app
-type: lab
-duration: "1:25"
-creator:
-    name: Gerry Mathe
-    city: London
-competencies: Server Applications
----
-
 # Build a Realtime app
 
 ## Introduction
