@@ -1,33 +1,11 @@
-var logger = require("morgan");
 var express = require("express");
 var app = express();
+var logger = require("morgan");
 var bodyParser = require("body-parser");
-var port = process.env.PORT || 3000;
-var server = require('http').createServer(app);
-var io = require('socket.io')(server);
 
-
-app.get('/', function(req, res) {
-  res.render('index.ejs');
-});
-
-io.on('connection', function(socket) {
-  console.log('a user connected');
-  socket.on('text', function (txt){
-    io.emit('text', txt);
-    console.log('text: ' + txt)
-  });
-  socket.on('name', function (n){
-    io.emit('name', n);
-    console.log('name: ' + n)
-  });
-});
-
-server.listen(port);
-console.log('Server started on ' + port);
-
-
-// var router = express.Router();
+// Need to connect the socket to the http server
+var server = app.listen(3000);
+var io = require("socket.io").listen(server);
 
 app.set("views", __dirname + "/views");
 app.use(logger('dev'));
@@ -36,5 +14,24 @@ app.set('view engine', 'ejs');
 app.use(express.static("public", __dirname + "/public"));
 app.use(bodyParser.json());
 
+// LANDING PAGE
+app.get('/', function(req, res){
+  res.render('index');
+});
 
+// RECEIVE NEW MESSAGE
+app.post('/message', function(req, res){
+  var name    = req.body.name;
+  var message = req.body.message;
 
+  console.log('REQUEST PARAMS: ', req.body);
+
+  // validations
+
+  // send new message to all clients
+  io.sockets.emit("incomingMessage", {name: name, message: message})
+
+  // respond to post request
+  var response = {message: "we got your msg buddy."};
+  res.status(200).json(response);
+});
